@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meshly - Afet Durumlarında Dayanıklı İletişim Ağı</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B00;
+            --primary-dark: #E65100;
+            --secondary: #1A1D29;
+            --accent: #00D9FF;
+            --success: #00E676;
+            --warning: #FFD600;
+            --danger: #FF1744;
+            --bg-dark: #0F111A;
+            --bg-light: #F8F9FA;
+            --text-light: #E0E0E0;
+            --text-dark: #1A1D29;
+            --grid-color: rgba(0, 217, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.3;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 3rem;
+            background: rgba(15, 17, 26, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+            text-transform: lowercase;
+        }
+
+        .nav-info {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            opacity: 0.7;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 2rem 4rem;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            text-align: center;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 230, 118, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            border-radius: 50px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: var(--text-light);
+            opacity: 0.8;
+            margin-bottom: 3rem;
+            font-weight: 400;
+        }
+
+        .hero-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .feature-pill {
+            padding: 1rem 1.5rem;
+            background: rgba(255, 107, 0, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .feature-pill:hover {
+            background: rgba(255, 107, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .hero-cta {
+            margin-top: 3rem;
+            padding: 1.2rem 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(255, 107, 0, 0.3);
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 107, 0, 0.5);
+        }
+
+        .hero-cta:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* Animated Background Elements */
+        .floating-node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0.3;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .floating-node:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .floating-node:nth-child(2) { top: 60%; left: 80%; animation-delay: 2s; }
+        .floating-node:nth-child(3) { top: 80%; left: 20%; animation-delay: 4s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.1); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Section Container */
+        section {
+            position: relative;
+            padding: 6rem 2rem;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            opacity: 0.7;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Analysis Chart Section */
+        .analysis-section {
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.05) 0%, rgba(0, 217, 255, 0.05) 100%);
+            border-top: 1px solid rgba(255, 107, 0, 0.2);
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .chart-container {
+            position: relative;
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 3rem;
+            background: rgba(26, 29, 41, 0.6);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-left: 3px solid var(--accent);
+            border-bottom: 3px solid var(--accent);
+            background: 
+                repeating-linear-gradient(0deg, transparent, transparent 18%, rgba(0, 217, 255, 0.05) 20%),
+                repeating-linear-gradient(90deg, transparent, transparent 18%, rgba(0, 217, 255, 0.05) 20%);
+        }
+
+        .axis-label {
+            position: absolute;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .y-label {
+            top: -2.5rem;
+            left: 0;
+            writing-mode: horizontal-tb;
+        }
+
+        .x-label {
+            bottom: -2.5rem;
+            right: 0;
+        }
+
+        .chart-dot {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .chart-dot:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+
+        .dot-core {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dot-label {
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+
+        .dot-whatsapp { bottom: 85%; left: 85%; }
+        .dot-whatsapp .dot-core { background: var(--danger); }
+
+        .dot-sms { bottom: 75%; left: 75%; }
+        .dot-sms .dot-core { background: var(--warning); color: var(--text-dark); }
+
+        .dot-satellite { bottom: 15%; left: 15%; }
+        .dot-satellite .dot-core { background: #78909C; }
+
+        .dot-meshly { bottom: 15%; left: 85%; }
+        .dot-meshly .dot-core {
+            width: 70px;
+            height: 70px;
+            background: var(--primary);
+            border: 3px solid var(--accent);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.7), 0 5px 20px rgba(0, 0, 0, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 20px rgba(255, 107, 0, 0), 0 5px 20px rgba(0, 0, 0, 0.4);
+            }
+        }
+
+        .strategic-gap {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: rgba(255, 107, 0, 0.1);
+            border-left: 4px solid var(--primary);
+            border-radius: 10px;
+        }
+
+        .strategic-gap h4 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Solution Cards */
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .solution-card {
+            padding: 2.5rem;
+            background: rgba(26, 29, 41, 0.6);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .solution-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .solution-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.2);
+        }
+
+        .solution-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .solution-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .solution-card p {
+            color: var(--text-light);
+            opacity: 0.8;
+            line-height: 1.8;
+        }
+
+        /* Technology Deep Dive */
+        .tech-section {
+            background: var(--secondary);
+        }
+
+        .tech-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .tech-card {
+            padding: 2.5rem;
+            background: rgba(0, 217, 255, 0.05);
+            border-left: 4px solid var(--accent);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .tech-card:hover {
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        .tech-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tech-number {
+            width: 50px;
+            height: 50px;
+            background: var(--accent);
+            color: var(--text-dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .tech-card h3 {
+            font-size: 1.8rem;
+            color: var(--accent);
+        }
+
+        .tech-description {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-light);
+            opacity: 0.9;
+        }
+
+        .tech-details {
+            background: rgba(15, 17, 26, 0.5);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 217, 255, 0.1);
+        }
+
+        .tech-details h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .tech-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tech-details li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-light);
+            opacity: 0.8;
+        }
+
+        .tech-details li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        code {
+            background: rgba(255, 107, 0, 0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9em;
+            color: var(--primary);
+        }
+
+        /* Interactive Simulation */
+        .simulation-section {
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--secondary) 100%);
+        }
+
+        .sim-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(15, 17, 26, 0.8);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid var(--accent);
+        }
+
+        canvas {
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            background: var(--bg-dark);
+            border-radius: 15px;
+            border: 2px solid rgba(0, 217, 255, 0.3);
+            cursor: pointer;
+            display: block;
+            margin: 0 auto 2rem;
+            touch-action: none;
+        }
+
+        .sim-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .sim-btn {
+            padding: 1rem 2rem;
+            background: var(--accent);
+            color: var(--text-dark);
+            border: none;
+            border-radius: 10px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sim-btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 0, 0.4);
+        }
+
+        .sim-btn.secondary {
+            background: rgba(0, 217, 255, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .sim-btn.danger {
+            background: rgba(255, 23, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .sim-info {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 217, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .sim-info h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Security Section */
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .security-card {
+            padding: 2.5rem;
+            background: linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(0, 217, 255, 0.1) 100%);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .security-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0.2;
+        }
+
+        .security-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .security-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .security-card .subtitle {
+            color: var(--accent);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .code-block {
+            background: rgba(15, 17, 26, 0.8);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+            overflow-x: auto;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            background: var(--secondary);
+            border-top: 1px solid rgba(0, 217, 255, 0.2);
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .footer-info {
+            color: var(--text-light);
+            opacity: 0.7;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 1.5rem;
+            }
+
+            .hero {
+                padding: 6rem 1.5rem 3rem;
+            }
+
+            section {
+                padding: 4rem 1.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .solution-grid,
+            .security-grid {
+                grid-template-columns: 1fr;
+            }
+
+            canvas {
+                height: 400px;
+            }
+
+            .chart-dot {
+                font-size: 0.6rem;
+            }
+
+            .dot-core {
+                width: 40px;
+                height: 40px;
+            }
+
+            .dot-meshly .dot-core {
+                width: 55px;
+                height: 55px;
+            }
+        }
+
+        /* Scroll Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">meshly</div>
+            <div class="nav-info">BUĞRAHAN DEVECİ - 425817 | 6 KASIM 2025</div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="floating-node"></div>
+        <div class="floating-node"></div>
+        <div class="floating-node"></div>
+        
+        <div class="hero-content">
+            <div class="hero-badge">🚨 Afet İletişim Sistemi</div>
+            <h1>Meshly</h1>
+            <p class="hero-subtitle">Afet Durumlarında Dayanıklı İletişim Ağı</p>
+            <p style="max-width: 700px; margin: 0 auto 2rem; font-size: 1.1rem; opacity: 0.8;">
+                Afetler sırasında iletişim altyapıları çoğunlukla çöker ve insanlar haberleşemez. 
+                Meshly, cebindeki telefonu kullanarak, sunucusuz ve tamamen çevrimdışı çalışan 
+                bir P2P iletişim ağı sunar.
+            </p>
+
+            <div class="hero-features">
+                <div class="feature-pill">🌐 P2P Mesh Network</div>
+                <div class="feature-pill">📡 Bluetooth & Wi-Fi Direct</div>
+                <div class="feature-pill">🔐 Uçtan Uca Şifreleme</div>
+                <div class="feature-pill">📍 Gerçek Zamanlı Konum</div>
+            </div>
+
+            <button class="hero-cta" onclick="document.getElementById('simulation').scrollIntoView({behavior: 'smooth'})">
+                🎮 Simülasyonu Dene
+            </button>
+        </div>
+    </section>
+
+    <!-- Analysis Section -->
+    <section class="analysis-section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">Mevcut Çözümlerin Analizi</h2>
+                <p class="section-subtitle">Neden Yeni Bir Çözüme İhtiyaç Var?</p>
+            </div>
+
+            <div class="chart-container fade-in">
+                <div class="chart-wrapper">
+                    <div class="axis-label y-label">Altyapı Bağımlılığı (Yüksek ↑)</div>
+                    <div class="axis-label x-label">Yaygınlık / Erişilebilirlik (Yüksek →)</div>
+
+                    <div class="chart-dot dot-whatsapp">
+                        <div class="dot-core">WA</div>
+                        <div class="dot-label">WhatsApp/Telegram</div>
+                    </div>
+
+                    <div class="chart-dot dot-sms">
+                        <div class="dot-core">SMS</div>
+                        <div class="dot-label">SMS/Arama</div>
+                    </div>
+
+                    <div class="chart-dot dot-satellite">
+                        <div class="dot-core">🛰️</div>
+                        <div class="dot-label">Uydu Telefonu</div>
+                    </div>
+
+                    <div class="chart-dot dot-meshly">
+                        <div class="dot-core">M</div>
+                        <div class="dot-label">MESHLY</div>
+                    </div>
+                </div>
+
+                <div class="strategic-gap">
+                    <h4>📊 Stratejik Boşluk Tespit Edildi</h4>
+                    <p>
+                        Mevcut iletişim alternatiflerini, bir afet anında en çok ihtiyaç duyulan iki temel 
+                        kritere göre analiz ettik: <strong>Altyapı Bağımsızlığı</strong> ve 
+                        <strong>Yaygınlık/Erişilebilirlik</strong>.
+                    </p>
+                    <p style="margin-top: 1rem;">
+                        Diyagramda da görüldüğü gibi, mevcut çözümler arasında hem altyapıdan bağımsız 
+                        çalışabilen hem de herkes tarafından erişilebilir olan bir seçenek bulunmamaktadır. 
+                        <strong style="color: var(--primary);">İşte bu stratejik boşluk, projemizin temelini oluşturmaktadır.</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Requirements -->
+    <section>
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">İdeal Çözümün Gereklilikleri</h2>
+            </div>
+
+            <div class="solution-grid">
+                <div class="solution-card fade-in">
+                    <div class="card-icon">🎯</div>
+                    <h3>Altyapıdan Tam Bağımsızlık</h3>
+                    <p>
+                        Çalışmak için GSM operatörlerine, baz istasyonlarına veya internete ihtiyaç 
+                        duymamalıdır. Merkezi bir sunucu yoktur, bu yüzden çökebilecek bir merkez de yoktur.
+                    </p>
+                </div>
+
+                <div class="solution-card fade-in">
+                    <div class="card-icon">📱</div>
+                    <h3>Maksimum Erişilebilirlik</h3>
+                    <p>
+                        Özel ve pahalı donanımlar (uydu telefonu vb.) gerektirmeden, herkesin cebindeki 
+                        standart bir akıllı telefonda çalışabilmelidir.
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-top: 3rem; padding: 2.5rem; background: rgba(0, 217, 255, 0.05); border-radius: 20px; border: 1px solid var(--accent);" class="fade-in">
+                <h3 style="color: var(--accent); font-size: 1.8rem; margin-bottom: 1rem;">
+                    Meshly: Bu İhtiyacı Karşılayan Mimari
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                    <div>
+                        <h4 style="color: var(--primary); margin-bottom: 0.5rem;">🕸️ Merkeziyetsiz Mesh Ağı</h4>
+                        <p>
+                            Her telefonu ağın bir parçası yaparak altyapı bağımlılığını tamamen ortadan kaldırır.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--primary); margin-bottom: 0.5rem;">📡 Standart Donanım Kullanımı</h4>
+                        <p>
+                            Her akıllı telefonda zaten var olan Bluetooth ve Wi-Fi Direct teknolojilerini kullanarak 
+                            maksimum erişilebilirlik sağlar.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Deep Dive -->
+    <section class="tech-section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">Temel Teknolojiler: Nasıl Çalışacak?</h2>
+            </div>
+
+            <div class="tech-grid">
+                <div class="tech-card fade-in">
+                    <div class="tech-header">
+                        <div class="tech-number">1</div>
+                        <h3>Menzili Sınırsız Genişletme: Mesh Ağı</h3>
+                    </div>
+                    <p class="tech-description">
+                        Her telefon bir aktarma istasyonu (röle) görevi görür. Mesajınız, hedefine ulaşana 
+                        kadar aradaki diğer kullanıcıların telefonları üzerinden "zıplayarak" ilerler.
+                    </p>
+                    <div class="tech-details">
+                        <h4>Teknik Detaylar</h4>
+                        <ul>
+                            <li>Her cihaz hem istemci hem sunucu görevi görür</li>
+                            <li>Mesajlar, en kısa yolu otomatik olarak bulur (Path Finding Algoritması)</li>
+                            <li>Menzil, kullanıcı sayısı arttıkça teorik olarak sınırsıza yakın bir hale gelir</li>
+                            <li>Dinamik ağ topolojisi: Cihazlar hareket ettikçe yollar güncellenir</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tech-card fade-in">
+                    <div class="tech-header">
+                        <div class="tech-number">2</div>
+                        <h3>Kopuk Ağlarda Bile İletişim: Sakla ve İlet</h3>
+                    </div>
+                    <p class="tech-description">
+                        Ağ sürekli bağlı olmasa bile mesajlar kaybolmaz. Aradaki bir telefon, mesajı geçici 
+                        olarak hafızasında saklar ve hedefteki kişi menzile girdiğinde veya mesajı iletebilecek 
+                        başka bir kullanıcıyla karşılaştığında teslimatı yapar.
+                    </p>
+                    <div class="tech-details">
+                        <h4>Store-and-Forward Mekanizması</h4>
+                        <ul>
+                            <li>Mesajlar cihaz hafızasında güvenli şekilde saklanır</li>
+                            <li>Her cihaz, iletmek için uygun fırsatı bekler</li>
+                            <li>Mesaj teslim edilene kadar birden fazla röleden geçebilir</li>
+                            <li>Zaman damgası ile önceliklendirme yapılır</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Simulation -->
+    <section id="simulation" class="simulation-section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">İnteraktif Mesh Ağ Simülasyonu</h2>
+                <p class="section-subtitle">
+                    Cihazları sürükleyerek mesh ağın nasıl çalıştığını görselleştirin
+                </p>
+            </div>
+
+            <div class="sim-container fade-in">
+                <canvas id="meshCanvas"></canvas>
+                
+                <div class="sim-controls">
+                    <button class="sim-btn" onclick="sendMessage()">📤 Mesaj Gönder</button>
+                    <button class="sim-btn secondary" onclick="addNode()">➕ Cihaz Ekle</button>
+                    <button class="sim-btn danger" onclick="resetSim()">🔄 Sıfırla</button>
+                </div>
+
+                <div class="sim-info">
+                    <h4>💡 Nasıl Kullanılır?</h4>
+                    <p>
+                        • Cihazları sürükleyerek konumlarını değiştirin<br>
+                        • Turuncu cihaz siz, yeşil cihaz hedef kişidir<br>
+                        • Gri cihazlar aradaki kişiler (A Kişisi, B Kişisi...)<br>
+                        • Mesaj göndermek için cihazlar arasında bağlantı olmalıdır<br>
+                        • Yeni kişi ekleyerek ağı genişletin (C, D, E...)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Section -->
+    <section>
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">Güvenlik ve Konum Takibi</h2>
+            </div>
+
+            <div class="security-grid">
+                <div class="security-card fade-in">
+                    <div class="security-icon">🔐</div>
+                    <h3>Uçtan Uca Şifreleme</h3>
+                    <p class="subtitle">AES-256 Advanced Encryption Standard</p>
+                    <p>
+                        Bu bir afet ağı olsa da, iletişimin gizli kalması şart. Gönderilen her mesaj, 
+                        ağa yayınlanmadan önce AES (Advanced Encryption Standard) ile şifrelenir.
+                    </p>
+                    <div class="code-block">
+// crypto_helper.dart
+CryptoHelper.encryptToBase64(message)
+                    </div>
+                    <p style="margin-top: 1rem; font-size: 0.95rem; opacity: 0.8;">
+                        Ağı dinleyen yabancı bir cihaz mesajı yakalasa bile içeriğini asla okuyamaz. 
+                        Sadece gönderen ve alıcı mesajı çözebilir.
+                    </p>
+                </div>
+
+                <div class="security-card fade-in">
+                    <div class="security-icon">📍</div>
+                    <h3>Gerçek Zamanlı Konum Takibi</h3>
+                    <p class="subtitle">Harita Üzerinde Canlı Lokasyon</p>
+                    <p>
+                        Afet anında mesajlaşmak kadar önemli olan bir diğer şey de 'insanları bulmaktır'. 
+                        Bu yüzden harita sekmesi geliştirildi.
+                    </p>
+                    <div class="code-block">
+// Geolocator paketi ile konum alma
+_broadcastLocation() // Her 10 saniyede bir
+MeshMapView // Apple'ın 'Find My' gibi
+                    </div>
+                    <p style="margin-top: 1rem; font-size: 0.95rem; opacity: 0.8;">
+                        Arka planda, geolocator paketi konumunuzu alıyor ve her 10 saniyede bir bunu ağa yayınlıyor. 
+                        Ağdaki diğer telefonlar da bu konumu dinleyecek ve harita üzerinde herkesin yerini gösterecek.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">meshly</div>
+            <div class="footer-info">
+                Afet Durumlarında Dayanıklı İletişim Ağı<br>
+                BUĞRAHAN DEVECİ - 425817 | 6 KASIM 2025
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Canvas Setup
+        const canvas = document.getElementById('meshCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Responsive canvas sizing
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const rect = container.getBoundingClientRect();
+            canvas.width = Math.min(rect.width - 40, 800);
+            canvas.height = 500;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            init();
+        });
+
+        let nodes = [];
+        let packets = [];
+        const CONNECTION_RANGE = 150;
+        let nodeCounter = 0; // Kişi sayacı
+
+        class Node {
+            constructor(x, y, isSource = false, isTarget = false) {
+                this.x = x;
+                this.y = y;
+                this.radius = 15;
+                this.isSource = isSource;
+                this.isTarget = isTarget;
+                this.dragging = false;
+                this.connections = [];
+                
+                // Dinamik isim oluştur
+                if (isSource) {
+                    this.name = "SEN";
+                } else if (isTarget) {
+                    this.name = "HEDEF";
+                } else {
+                    nodeCounter++;
+                    this.name = String.fromCharCode(64 + nodeCounter) + " KİŞİSİ"; // A KİŞİSİ, B KİŞİSİ...
+                }
+            }
+
+            draw() {
+                // Connection range circle
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, CONNECTION_RANGE, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 217, 255, 0.03)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(0, 217, 255, 0.1)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Connection lines
+                ctx.strokeStyle = 'rgba(0, 217, 255, 0.4)';
+                ctx.lineWidth = 2;
+                this.connections.forEach(node => {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(node.x, node.y);
+                    ctx.stroke();
+                });
+
+                // Node body
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                
+                if (this.isSource) {
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                    gradient.addColorStop(0, '#FF8C00');
+                    gradient.addColorStop(1, '#FF6B00');
+                    ctx.fillStyle = gradient;
+                } else if (this.isTarget) {
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                    gradient.addColorStop(0, '#00FF88');
+                    gradient.addColorStop(1, '#00E676');
+                    ctx.fillStyle = gradient;
+                } else {
+                    ctx.fillStyle = '#7f8c8d';
+                }
+                ctx.fill();
+                
+                // Node border
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Label
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 11px "Space Mono", monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.name, this.x, this.y + this.radius + 18);
+            }
+        }
+
+        class Packet {
+            constructor(path) {
+                this.path = path;
+                this.currentIndex = 0;
+                this.progress = 0;
+                this.speed = 0.05;
+                this.active = true;
+                this.x = path[0].x;
+                this.y = path[0].y;
+            }
+
+            update() {
+                if (!this.active) return;
+                const start = this.path[this.currentIndex];
+                const end = this.path[this.currentIndex + 1];
+
+                if (!end) {
+                    this.active = false;
+                    return;
+                }
+
+                this.progress += this.speed;
+                this.x = start.x + (end.x - start.x) * this.progress;
+                this.y = start.y + (end.y - start.y) * this.progress;
+
+                if (this.progress >= 1) {
+                    this.currentIndex++;
+                    this.progress = 0;
+                    if (this.currentIndex >= this.path.length - 1) {
+                        this.active = false;
+                        setTimeout(() => {
+                            alert("✅ Mesaj Başarıyla İletildi!\n\n🔐 Şifreleme: AES-256\n📡 Geçtiği Röle: " + (this.path.length - 2) + "\n✔️ Durum: Güvenli");
+                        }, 100);
+                    }
+                }
+            }
+
+            draw() {
+                if (!this.active) return;
+                
+                // Glow effect
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 10, 0, Math.PI * 2);
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, 10);
+                gradient.addColorStop(0, 'rgba(255, 215, 0, 0.8)');
+                gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                // Packet core
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 6, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFD700';
+                ctx.fill();
+                ctx.strokeStyle = '#FFA500';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        function init() {
+            nodes = [];
+            packets = [];
+            nodeCounter = 0; // Sayacı sıfırla
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            // Create nodes with responsive positions
+            nodes.push(new Node(w * 0.15, h * 0.5, true, false)); // Source
+            nodes.push(new Node(w * 0.85, h * 0.5, false, true)); // Target
+            
+            // Relays
+            nodes.push(new Node(w * 0.35, h * 0.3));
+            nodes.push(new Node(w * 0.35, h * 0.7));
+            nodes.push(new Node(w * 0.65, h * 0.3));
+            nodes.push(new Node(w * 0.65, h * 0.7));
+            
+            updateConnections();
+            animate();
+        }
+
+        function updateConnections() {
+            nodes.forEach(node => node.connections = []);
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dist = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y);
+                    if (dist < CONNECTION_RANGE) {
+                        nodes[i].connections.push(nodes[j]);
+                        nodes[j].connections.push(nodes[i]);
+                    }
+                }
+            }
+        }
+
+        function findPath(start, end) {
+            let queue = [[start]];
+            let visited = new Set([start]);
+            while (queue.length > 0) {
+                let path = queue.shift();
+                let node = path[path.length - 1];
+                if (node === end) return path;
+                for (let neighbor of node.connections) {
+                    if (!visited.has(neighbor)) {
+                        visited.add(neighbor);
+                        queue.push([...path, neighbor]);
+                    }
+                }
+            }
+            return null;
+        }
+
+        function sendMessage() {
+            updateConnections();
+            const source = nodes[0];
+            const target = nodes[1];
+            const path = findPath(source, target);
+            
+            if (path) {
+                packets.push(new Packet(path));
+            } else {
+                alert("⚠️ Hedefe Ulaşılamıyor!\n\nCihazları birbirine yaklaştırarak mesh ağ zinciri oluşturun.");
+            }
+        }
+
+        function addNode() {
+            const w = canvas.width;
+            const h = canvas.height;
+            nodes.push(new Node(
+                Math.random() * (w - 100) + 50,
+                Math.random() * (h - 100) + 50
+            ));
+            updateConnections();
+        }
+
+        function resetSim() {
+            init();
+        }
+
+        // Mouse & Touch Interaction
+        let selectedNode = null;
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
+            };
+        }
+
+        function handleStart(pos) {
+            nodes.forEach(node => {
+                const dist = Math.hypot(pos.x - node.x, pos.y - node.y);
+                if (dist < node.radius + 10) {
+                    selectedNode = node;
+                    node.dragging = true;
+                }
+            });
+        }
+
+        function handleMove(pos) {
+            if (selectedNode) {
+                selectedNode.x = Math.max(selectedNode.radius, Math.min(canvas.width - selectedNode.radius, pos.x));
+                selectedNode.y = Math.max(selectedNode.radius, Math.min(canvas.height - selectedNode.radius, pos.y));
+                updateConnections();
+            }
+        }
+
+        function handleEnd() {
+            if (selectedNode) {
+                selectedNode.dragging = false;
+                selectedNode = null;
+            }
+        }
+
+        canvas.addEventListener('mousedown', e => handleStart(getMousePos(e)));
+        canvas.addEventListener('mousemove', e => handleMove(getMousePos(e)));
+        canvas.addEventListener('mouseup', handleEnd);
+
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            handleStart(getMousePos(touch));
+        }, {passive: false});
+
+        canvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            handleMove(getMousePos(touch));
+        }, {passive: false});
+
+        canvas.addEventListener('touchend', e => {
+            e.preventDefault();
+            handleEnd();
+        });
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            nodes.forEach(n => n.draw());
+            packets.forEach((p, i) => {
+                p.update();
+                p.draw();
+                if (!p.active && p.progress >= 1) packets.splice(i, 1);
+            });
+            requestAnimationFrame(animate);
+        }
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        init();
+    </script>
+</body>
+</html>
