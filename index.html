@@ -127,7 +127,7 @@
             font-size: clamp(2.5rem, 8vw, 5rem);
             font-weight: 700;
             line-height: 1.1;
-            margin-bottom: 0.5rem; /* İkonlar için biraz yer açıldı */
+            margin-bottom: 0.5rem;
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -1114,7 +1114,8 @@ MeshMapView // Apple'ın 'Find My' gibi
 
         let nodes = [];
         let packets = [];
-        const CONNECTION_RANGE = 150;
+        // Menzili biraz artırdık ki zincir kolay kurulsun
+        const CONNECTION_RANGE = 180; 
         let nodeCounter = 0; // Kişi sayacı
 
         class Node {
@@ -1257,15 +1258,17 @@ MeshMapView // Apple'ın 'Find My' gibi
             const w = canvas.width;
             const h = canvas.height;
             
-            // Create nodes with responsive positions
-            nodes.push(new Node(w * 0.15, h * 0.5, true, false)); // Source
-            nodes.push(new Node(w * 0.85, h * 0.5, false, true)); // Target
+            // 1. Kaynak (SEN) - En Sol
+            nodes.push(new Node(w * 0.20, h * 0.5, true, false)); 
             
-            // Relays
-            nodes.push(new Node(w * 0.35, h * 0.3));
-            nodes.push(new Node(w * 0.35, h * 0.7));
-            nodes.push(new Node(w * 0.65, h * 0.3));
-            nodes.push(new Node(w * 0.65, h * 0.7));
+            // 2. Röle (A KİŞİSİ)
+            nodes.push(new Node(w * 0.40, h * 0.5));
+            
+            // 3. Röle (B KİŞİSİ)
+            nodes.push(new Node(w * 0.60, h * 0.5));
+
+            // 4. Hedef (HEDEF) - En Sağ
+            nodes.push(new Node(w * 0.80, h * 0.5, false, true)); 
             
             updateConnections();
             animate();
@@ -1304,7 +1307,10 @@ MeshMapView // Apple'ın 'Find My' gibi
         function sendMessage() {
             updateConnections();
             const source = nodes[0];
-            const target = nodes[1];
+            const target = nodes.find(n => n.isTarget); // Hedefi bul (Son eklenenler hedefin indexini değiştirebilir ama isTarget sabittir)
+            
+            if(!target) return;
+
             const path = findPath(source, target);
             
             if (path) {
